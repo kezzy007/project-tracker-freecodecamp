@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const mailer = require('../utils/mailer');
-const SITE_CONFIG = require('../config/app');
+const SITE_CONFIG = require('../env');
 
 // Helper libraries
 const replaceDotsInEmail = require('../utils/helper-functions');
@@ -21,11 +21,11 @@ const jwt = require('jsonwebtoken');
 
 const ROLE_ADMIN = 'ADMIN';
 
-router.post('/register', (req, res, next) => {
+router.get('/register', (req, res, next) => {
 
     const newUser = new User({
         name: req.body.name,
-        email: req.body.email,
+        email:  req.body.email,
         username: req.body.username,
         password: req.body.password,
         role: req.body.role,
@@ -40,27 +40,32 @@ router.post('/register', (req, res, next) => {
         }
         else{
 
-            activation_url = `${SITE_CONFIG.SITE_URL/accounts/activation/user.token}`;
+            user.password = undefined;
+
+            activation_url = `${SITE_CONFIG.SITE_URL}/accounts/activation/${user.token}`;
 
             // Send mail on user registered
-            mailer.gmail(mail_credentials, user.email, activation_url, 
+            mailer.gmail(SITE_CONFIG, user.email, activation_url, 
                          (error, info) => {
                            
                             if (error) {
-                                return console.log(error);
+                                 
+                                console.log(error);
+
+                                return res.json({success: false});
+
                             }
                                 console.log('Message sent: %s', info.messageId);
                                 // Preview only available when sending through an Ethereal account
                                 console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-                        
+
+                                res.json({success:true, user: user, message: 'User registered', emailObject: info  });
+
                                 // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
                                 // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 
                         });
 
-            user.password = undefined;
-
-            res.json({success:true, user: user, message: 'User registered'});
         }
 
     });

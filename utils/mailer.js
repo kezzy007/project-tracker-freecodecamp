@@ -1,15 +1,7 @@
-let activationUrl = '';
-let userMail = '';
+const nodemailer = require('nodemailer');
+const SITE_CONFIG = require('../env.js');
 
-let mailOptions = {
-    from: '"Administrator @ Project Tracker for FreecodeCamp" <foo@example.com>', // sender address
-    to: userMail, // list of receivers
-    subject: 'Account verification for project tracker (FreeCodeCamp)', // Subject line
-    text: '', // plain text body
-    html: getMailMarkup() // html body
-};
-
-function getMailMarkup() {
+function getMailMarkup(activationUrl) {
     return `
                 <h3>Hello</h3>
                 <p>You account has been created on the project tracker for Freecodecamp platform. <br/>
@@ -17,24 +9,30 @@ function getMailMarkup() {
 
                 <a href="${activationUrl}">Confirmation Link</a>
                 </p>
-            
             `;
 }
 
 module.exports.gmail = (credentials, user_mail, activation_url, callback) => {
 
-    this.activationUrl = activation_url;
-    this.userMail = user_mail;
+    activationUrl = activation_url;
+    userMail = credentials.MAIL_USER;
+    
+    let mailOptions = {
+        from: SITE_CONFIG.APP_MAIL, // sender address
+        to: user_mail, // list of receivers
+        subject: 'Account verification for project tracker (FreeCodeCamp)', // Subject line
+        text: '', // plain text body
+        html: getMailMarkup(activation_url) // html body
+    };
 
     let transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false, // true for 465, false for other ports
+        service: 'gmail',
         auth: {
-            user: credentials.MAIL_USER, // user
-            pass: credentials.MAIL_PASS // password
+            user: SITE_CONFIG.APP_MAIL, // user
+            pass: SITE_CONFIG.MAIL_PASS // password
         }
     });
+
 
     transporter.sendMail(mailOptions, callback);
 
