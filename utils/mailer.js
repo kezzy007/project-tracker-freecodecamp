@@ -14,9 +14,6 @@ function getMailMarkup(activationUrl) {
 
 module.exports.gmail = (credentials, user_mail, activation_url, callback) => {
 
-    activationUrl = activation_url;
-    userMail = credentials.MAIL_USER;
-    
     let mailOptions = {
         from: SITE_CONFIG.APP_MAIL, // sender address
         to: user_mail, // list of receivers
