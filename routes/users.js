@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const mailer = require('../utils/mailer');
-const SITE_CONFIG = require('../config/app');
+const SITE_CONFIG = require('../env');
 
 // Helper libraries
 const replaceDotsInEmail = require('../utils/helper-functions');
@@ -21,15 +21,15 @@ const jwt = require('jsonwebtoken');
 
 const ROLE_ADMIN = 'ADMIN';
 
-router.post('/register', (req, res, next) => {
+router.get('/register', (req, res, next) => {
 
     const newUser = new User({
-        name: req.body.name,
-        email: req.body.email,
-        username: req.body.username,
-        password: req.body.password,
-        role: req.body.role,
-        skill: req.body.skill,
+        name: req.body.name || 'sfdgfdg',
+        email:  req.body.email,
+        username: req.body.username || 'ffgddfgd',
+        password: req.body.password || 'dfgerttg',
+        role: req.body.role || 'user',
+        skill: req.body.skill || 'wferffef',
         profile_pic: req.body.profile_pic
     });
 
@@ -40,10 +40,10 @@ router.post('/register', (req, res, next) => {
         }
         else{
 
-            activation_url = `${SITE_CONFIG.SITE_URL/accounts/activation/user.token}`;
+            activation_url = `${SITE_CONFIG.SITE_URL}/accounts/activation/${user.token}`;
 
             // Send mail on user registered
-            mailer.gmail(mail_credentials, user.email, activation_url, 
+            mailer.gmail(SITE_CONFIG, user.email, activation_url, 
                          (error, info) => {
                            
                             if (error) {
